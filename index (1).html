@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>🧠 Gimnasio Mental</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:       #FDF5EC;
+      --cream:    #FFF8F0;
+      --card:     #FFFFFF;
+      --primary:  #C8623A;
+      --pri-dk:   #A84E2C;
+      --pri-lt:   #EFA07A;
+      --green:    #5C9A62;
+      --grn-lt:   #EAF5EB;
+      --gold:     #D4A228;
+      --gld-lt:   #FDF3D0;
+      --purple:   #8B5EA8;
+      --pink:     #C04475;
+      --teal:     #2E8C88;
+      --text:     #2A180A;
+      --text-md:  #7A4A28;
+      --text-lt:  #B8845A;
+      --border:   #E8C8A8;
+      --shadow:   0 6px 24px rgba(200,98,58,.15);
+      --ok:       #3D9448;
+      --ok-bg:    #EAF5EB;
+      --err:      #C03030;
+      --err-bg:   #FDECEC;
+      --radius:   18px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    #app{max-width:480px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative}
+
+    /* ── HEADER ── */
+    .hdr{
+      background:linear-gradient(135deg,#C8623A 0%,#E07848 60%,#D4A228 100%);
+      padding:15px 18px;display:flex;align-items:center;justify-content:space-between;
+      position:sticky;top:0;z-index:200;box-shadow:0 3px 14px rgba(200,98,58,.3)
+    }
+    .hdr-title{font-size:21px;font-weight:900;color:#fff;letter-spacing:-0.3px}
+    .hdr-btn{
+      background:rgba(255,255,255,.25);border:none;border-radius:10px;
+      padding:8px 14px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;
+      font-family:inherit;display:none
+    }
+
+    /* ── CONTENT ── */
+    .page{padding:22px 16px 56px;animation:fadeUp .28s ease}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+    /* ── CARDS ── */
+    .card{background:var(--card);border-radius:var(--radius);padding:20px 16px;box-shadow:var(--shadow);margin-bottom:14px}
+    .card-soft{background:var(--cream);border:2px solid var(--border)}
+    .card-ok{background:var(--ok-bg);border:2px solid var(--ok)}
+    .card-err{background:var(--err-bg);border:2px solid var(--err)}
+
+    /* ── BUTTONS ── */
+    .btn{
+      width:100%;padding:17px 18px;border:none;border-radius:14px;
+      font-size:18px;font-weight:800;cursor:pointer;font-family:inherit;
+      margin-bottom:10px;transition:transform .1s,box-shadow .1s
+    }
+    .btn:active{transform:scale(.97)}
+    .btn-p{background:linear-gradient(135deg,var(--primary),#E07848);color:#fff;box-shadow:0 5px 14px rgba(200,98,58,.35)}
+    .btn-s{background:transparent;color:var(--primary);border:2.5px solid var(--primary)}
+    .btn-g{background:var(--cream);color:var(--text-md);border:2px solid var(--border)}
+    .btn:disabled{opacity:.5;cursor:default;transform:none}
+
+    /* ── PROGRESS ── */
+    .prog-wrap{margin-bottom:16px}
+    .prog-lbl{font-size:14px;color:var(--text-lt);text-align:center;margin-bottom:5px;font-weight:700}
+    .prog-bar{height:11px;background:#EDD5C0;border-radius:6px;overflow:hidden}
+    .prog-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--gold));border-radius:6px;transition:width .4s ease}
+
+    /* ── BADGE ── */
+    .badge{display:inline-block;padding:5px 13px;border-radius:20px;font-size:14px;font-weight:800;color:#fff;background:var(--primary)}
+    .badge-g{background:var(--green)}
+    .badge-d{background:var(--text-md)}
+
+    /* ── BACK BTN ── */
+    .back{
+      display:inline-flex;align-items:center;gap:5px;padding:9px 14px;
+      background:transparent;border:2px solid var(--border);border-radius:11px;
+      font-size:15px;font-weight:700;color:var(--text-md);cursor:pointer;
+      font-family:inherit;margin-bottom:16px
+    }
+
+    /* ── GAME HEADER ── */
+    .ghdr{text-align:center;margin-bottom:14px}
+    .ghdr-ico{font-size:38px}
+    .ghdr-ttl{font-size:25px;font-weight:900;color:var(--text);margin:3px 0}
+    .ghdr-sub{font-size:14px;color:var(--text-lt);font-weight:600}
+
+    /* ── BADGE ROW ── */
+    .badge-row{display:flex;justify-content:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+
+    /* ── INPUT ── */
+    .ginput{
+      width:100%;padding:15px;font-size:25px;font-weight:700;text-align:center;
+      border:3px solid var(--border);border-radius:13px;font-family:inherit;
+      outline:none;background:#fff;transition:border-color .2s;
+      -moz-appearance:textfield
+    }
+    .ginput:focus{border-color:var(--primary)}
+    .ginput.ok{border-color:var(--ok);background:var(--ok-bg)}
+    .ginput.err{border-color:var(--err);background:var(--err-bg)}
+    .ginput::-webkit-inner-spin-button,.ginput::-webkit-outer-spin-button{-webkit-appearance:none}
+
+    /* ── FEEDBACK ── */
+    .fb{font-size:21px;font-weight:800;text-align:center;margin:13px 0}
+    .fb-ok{color:var(--ok)}
+    .fb-err{color:var(--err)}
+
+    /* ── DONE SCREEN ── */
+    .done-ico{font-size:70px;text-align:center;margin-bottom:8px}
+    .done-ttl{font-size:27px;font-weight:900;text-align:center;margin-bottom:6px}
+    .done-sc{font-size:21px;font-weight:700;color:var(--primary);text-align:center;margin-bottom:20px}
+
+    /* ── CHOICE GRID ── */
+    .cgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+    .cbtn{
+      padding:15px 8px;background:var(--cream);border:2.5px solid var(--border);
+      border-radius:13px;font-size:17px;font-weight:700;cursor:pointer;
+      font-family:inherit;color:var(--text);transition:all .15s;line-height:1.3
+    }
+    .cbtn:active:not([disabled]){transform:scale(.96)}
+    .cbtn.sel{background:var(--primary);color:#fff;border-color:var(--primary)}
+    .cbtn.c-ok{background:var(--ok);color:#fff;border-color:var(--ok)}
+    .cbtn.c-err{background:var(--err);color:#fff;border-color:var(--err)}
+    .cbtn[disabled]{cursor:default;opacity:.85}
+
+    /* ── GAME CARD (menu) ── */
+    .gcrd{
+      width:100%;background:#fff;border:none;border-radius:16px;padding:16px 18px;
+      display:flex;align-items:center;gap:14px;cursor:pointer;
+      box-shadow:var(--shadow);margin-bottom:11px;font-family:inherit;text-align:left;
+      transition:transform .15s
+    }
+    .gcrd:active{transform:scale(.985)}
+    .gcrd-ico{font-size:36px;flex-shrink:0}
+    .gcrd-ttl{font-size:18px;font-weight:800;color:var(--text)}
+    .gcrd-dsc{font-size:13px;color:var(--text-md);margin-top:2px}
+    .gcrd-arr{font-size:22px;color:var(--text-lt);margin-left:auto}
+
+    /* ── PAIRS ── */
+    .pgrid{display:grid;gap:9px}
+    .pcard{
+      aspect-ratio:1;background:var(--gold);border:3px solid #C09010;
+      border-radius:13px;font-size:0;display:flex;align-items:center;
+      justify-content:center;cursor:pointer;transition:all .18s;
+      color:rgba(255,255,255,.85);font-weight:900
+    }
+    .pcard .q{font-size:28px}
+    .pcard .e{font-size:34px}
+    .pcard.flip{background:#fff;border-color:var(--primary)}
+    .pcard.done{background:var(--ok-bg);border-color:var(--ok);cursor:default}
+
+    /* ── SEQUENCE ── */
+    .sqgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+    .sqbtn{
+      height:108px;border-radius:18px;border:none;cursor:pointer;
+      font-family:inherit;font-size:19px;font-weight:800;
+      color:rgba(255,255,255,.92);transition:all .15s
+    }
+    .sqbtn:disabled{cursor:default}
+    .sqbtn.lit{transform:scale(1.07);filter:brightness(1.4);box-shadow:0 0 0 5px rgba(255,255,255,.45)}
+
+    /* ── REFRAN ── */
+    .rftext{
+      font-size:22px;font-weight:800;color:var(--primary);
+      text-align:center;line-height:1.5;margin:14px 0;font-style:italic
+    }
+
+    /* ── SCRAMBLE ── */
+    .scrword{
+      font-size:40px;font-weight:900;color:var(--primary);
+      letter-spacing:9px;text-align:center;margin:14px 0;
+      font-family:monospace
+    }
+
+    /* ── WELCOME HERO ── */
+    .hero-rings{
+      position:relative;width:120px;height:120px;margin:0 auto 12px;
+      display:flex;align-items:center;justify-content:center
+    }
+    .hero-rings::before{
+      content:'';position:absolute;inset:0;border-radius:50%;
+      border:4px solid var(--pri-lt);opacity:.4;animation:spin 6s linear infinite
+    }
+    .hero-rings::after{
+      content:'';position:absolute;inset:12px;border-radius:50%;
+      border:3px dashed var(--gold);opacity:.5;animation:spin 9s linear infinite reverse
+    }
+    .hero-emoji{font-size:64px;z-index:1}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* ── SCORE FOOTER ── */
+    .sc-foot{text-align:center;font-size:15px;color:var(--text-lt);margin-top:6px;font-weight:600}
+
+    /* ── TRIVIA EXP ── */
+    .exp-box{background:var(--gld-lt);border:2px solid #D4A228;border-radius:13px;padding:12px 14px;margin-top:12px}
+    .exp-box p{font-size:15px;color:var(--text-md);margin:0;line-height:1.6}
+  </style>
+</head>
+<body>
+<div id="app">
+  <div class="hdr">
+    <div class="hdr-title">🧠 Gimnasio Mental</div>
+    <button class="hdr-btn" id="menu-btn" onclick="goMenu()">☰ Menú</button>
+  </div>
+  <div id="pg" class="page"></div>
+</div>
+
+<script>
+// ═══════════════════════════════ DATA ═══════════════════════════════
+
+const EMOJIS = ["🌸","🌞","🦋","🍎","🌈","🐱","🎵","🌻","🐦","🍓","🌙","🎈","🐘","🦁","🍀","🐸","🌺","⭐","🍊","🐬"];
+
+const MATH = {
+  1:[{q:"3 + 4",a:7},{q:"9 − 5",a:4},{q:"2 × 5",a:10},{q:"8 + 3",a:11},{q:"7 − 2",a:5},{q:"6 + 6",a:12}],
+  2:[{q:"18 + 15",a:33},{q:"42 − 17",a:25},{q:"6 × 7",a:42},{q:"85 − 38",a:47},{q:"9 × 8",a:72},{q:"64 + 27",a:91}],
+  3:[{q:"134 + 57",a:191},{q:"200 − 83",a:117},{q:"12 × 9",a:108},{q:"256 − 99",a:157},{q:"15 × 8",a:120},{q:"375 + 48",a:423}],
+};
+
+const WORD_FILL = [
+  {q:"C_SA",a:"CASA",h:"🏠 Donde vivimos"},
+  {q:"_GUA",a:"AGUA",h:"💧 Para beber"},
+  {q:"P_RRO",a:"PERRO",h:"🐕 Animal fiel"},
+  {q:"LUN_",a:"LUNA",h:"🌙 Brilla de noche"},
+  {q:"S_L",a:"SOL",h:"☀️ Nos da calor"},
+  {q:"_AN",a:"PAN",h:"🍞 Para comer"},
+  {q:"ROS_",a:"ROSA",h:"🌹 Flor hermosa"},
+  {q:"M_R",a:"MAR",h:"🌊 Mucha agua salada"},
+  {q:"ÁRB_L",a:"ÁRBOL",h:"🌳 Da sombra y fruta"},
+  {q:"FL_R",a:"FLOR",h:"🌺 Huele muy rico"},
+  {q:"AM_R",a:"AMOR",h:"❤️ Sentimiento bonito"},
+  {q:"S_LA",a:"SALA",h:"🛋️ Cuarto principal"},
+  {q:"P_Z",a:"PAZ",h:"🕊️ Tranquilidad"},
+  {q:"VI_A",a:"VIDA",h:"✨ Lo más valioso"},
+  {q:"N_CHE",a:"NOCHE",h:"🌙 Cuando oscurece"},
+  {q:"CI_LO",a:"CIELO",h:"☁️ Donde vuelan las nubes"},
+];
+
+const WORD_SETS = [
+  ["CASA","PERRO","LUNA","ROSA","LIBRO"],
+  ["AGUA","CAMPO","NIÑO","MESA","CIELO"],
+  ["ÁRBOL","GATO","SOL","SILLA","PAN"],
+  ["FLOR","AMOR","MAR","NOCHE","FIESTA"],
+];
+
+const REFRANES = [
+  {s:"Camarón que se duerme...",o:["se lo lleva la corriente","se va a dormir tranquilo","no come nunca","canta todo el día"],a:0},
+  {s:"A mal tiempo...",o:["buena cara","mala suerte siempre","llueve aún más","no salgas de casa"],a:0},
+  {s:"No hay mal...",o:["que por bien no venga","que sea muy pequeño","sin remedio siempre","que dure mucho tiempo"],a:0},
+  {s:"Más vale tarde...",o:["que nunca","que temprano siempre","que llegar rápido","que a destiempo ya"],a:0},
+  {s:"En boca cerrada...",o:["no entran moscas","no hay problema alguno","todo está muy bien","te quedas callado"],a:0},
+  {s:"El que mucho abarca...",o:["poco aprieta","mucho aprende siempre","todo lo pierde rápido","nada bien consigue"],a:0},
+  {s:"A caballo regalado...",o:["no se le mira el diente","siempre se monta bien","hay que darle agua","se le cuida mucho"],a:0},
+  {s:"Dime con quién andas...",o:["y te diré quién eres","y sabrás tu camino","que yo te diré todo","conocerás tu suerte"],a:0},
+  {s:"Ojos que no ven...",o:["corazón que no siente","mente que no piensa","alma que no sufre","todo se olvida ya"],a:0},
+  {s:"No por mucho madrugar...",o:["amanece más temprano","se llega más lejos","se trabaja mejor","uno gana más así"],a:0},
+  {s:"Más vale un pájaro en mano...",o:["que cien volando","que dos en el árbol","que nada en el nido","que uno en el cielo"],a:0},
+  {s:"Al que madruga...",o:["Dios le ayuda","todo le sale bien","le va mejor siempre","nunca le falta algo"],a:0},
+  {s:"Más vale prevenir...",o:["que lamentar","que curar siempre","que sufrir así","que esperar mucho"],a:0},
+  {s:"A quien madruga...",o:["Dios le ayuda","le va muy bien","el sol le saluda","la suerte le da"],a:0},
+];
+
+const ODD = [
+  {it:["Manzana","Pera","Zanahoria","Uva"],odd:2,r:"La zanahoria es una verdura, las demás son frutas 🍎"},
+  {it:["Perro","Gato","León","Mesa"],odd:3,r:"La mesa no es un animal 🐾"},
+  {it:["Rojo","Azul","Verde","Grande"],odd:3,r:"Grande no es un color 🎨"},
+  {it:["Enero","Marzo","Junio","Lunes"],odd:3,r:"Lunes es un día de la semana, no un mes 📅"},
+  {it:["Piano","Guitarra","Violín","Pincel"],odd:3,r:"El pincel es para pintar, no es instrumento 🎵"},
+  {it:["Madrid","París","Roma","Amazonas"],odd:3,r:"El Amazonas es un río, las demás son capitales 🌍"},
+  {it:["Rosa","Margarita","Clavel","Espinaca"],odd:3,r:"La espinaca es una verdura, las demás son flores 🌸"},
+  {it:["Cuchara","Tenedor","Cuchillo","Tijeras"],odd:3,r:"Las tijeras no son cubiertos de mesa ✂️"},
+  {it:["Camión","Bicicleta","Avión","Zapato"],odd:3,r:"El zapato no es un medio de transporte 👟"},
+  {it:["Lluvia","Viento","Nieve","Libro"],odd:3,r:"El libro no es un fenómeno del tiempo ☁️"},
+  {it:["Círculo","Triángulo","Cuadrado","Montaña"],odd:3,r:"La montaña no es una figura geométrica 📐"},
+  {it:["Plátano","Naranja","Sandía","Lechuga"],odd:3,r:"La lechuga es una verdura de hoja 🥬"},
+];
+
+const SCRAMBLE = [
+  {w:"ROSA",sc:"SARO",e:"🌹"},{w:"LUNA",sc:"ANLU",e:"🌙"},{w:"MESA",sc:"ASEM",e:"🍽️"},
+  {w:"GATO",sc:"OGAT",e:"🐱"},{w:"PATO",sc:"TAOP",e:"🦆"},{w:"MANO",sc:"ONAM",e:"✋"},
+  {w:"BOCA",sc:"ACOB",e:"👄"},{w:"FLOR",sc:"LORF",e:"🌺"},{w:"TREN",sc:"NETR",e:"🚂"},
+  {w:"CAMA",sc:"AMAC",e:"🛏️"},{w:"PELO",sc:"ELOP",e:"💇"},{w:"NUBE",sc:"UNBE",e:"☁️"},
+  {w:"PERA",sc:"ARPE",e:"🍐"},{w:"LIBRO",sc:"OIRBL",e:"📚"},{w:"CIELO",sc:"OELCI",e:"🌤️"},
+  {w:"PERRO",sc:"ROPRE",e:"🐕"},{w:"PLATO",sc:"TAPLO",e:"🍽️"},{w:"CAMPO",sc:"OMCAP",e:"🌿"},
+];
+
+const TRIVIA = [
+  {q:"¿Cuál es el río más largo del mundo?",o:["Amazonas","Nilo","Mississippi","Yangtsé"],a:1,ex:"El Nilo, en África, mide 6,650 km 🌍"},
+  {q:"¿En qué año llegó el hombre a la Luna?",o:["1965","1969","1972","1975"],a:1,ex:"El 20 de julio de 1969, misión Apolo 11 🚀"},
+  {q:"¿Cuántos colores tiene el arcoíris?",o:["5","6","7","8"],a:2,ex:"7 colores: rojo, naranja, amarillo, verde, azul, índigo y violeta 🌈"},
+  {q:"¿Cuál es el animal terrestre más rápido?",o:["León","Guepardo","Caballo","Avestruz"],a:1,ex:"El guepardo puede correr 110 km/h ⚡"},
+  {q:"¿De qué país es la Torre Eiffel?",o:["Italia","España","Francia","Alemania"],a:2,ex:"Está en París, Francia. Se construyó en 1889 🇫🇷"},
+  {q:"¿Cuál es el océano más grande del mundo?",o:["Atlántico","Índico","Ártico","Pacífico"],a:3,ex:"El Océano Pacífico cubre más de un tercio del planeta 🌊"},
+  {q:"¿Qué animal produce la miel?",o:["Mariposa","Abeja","Mosca","Hormiga"],a:1,ex:"Las abejas producen la miel en sus colmenas 🍯"},
+  {q:"¿Cuál es la capital de España?",o:["Barcelona","Sevilla","Madrid","Valencia"],a:2,ex:"¡Madrid es la capital de España desde 1561! 🇪🇸"},
+  {q:"¿Cuántos lados tiene un hexágono?",o:["4","5","6","8"],a:2,ex:"Un hexágono tiene 6 lados, como un panal de abeja 🐝"},
+  {q:"¿Cuál es el planeta más grande del sistema solar?",o:["Saturno","Marte","Júpiter","Urano"],a:2,ex:"Júpiter: ¡cabría la Tierra más de 1,300 veces dentro! 🪐"},
+  {q:"¿En qué estación caen las hojas de los árboles?",o:["Primavera","Verano","Otoño","Invierno"],a:2,ex:"En otoño los árboles se preparan para el frío soltando sus hojas 🍂"},
+  {q:"¿Cuántos días tiene el mes de febrero en un año normal?",o:["27","28","29","30"],a:1,ex:"28 días, y 29 en los años bisiestos 📅"},
+  {q:"¿De qué está hecho el chocolate?",o:["Café","Cacao","Vainilla","Azúcar"],a:1,ex:"El chocolate viene del cacao, árbol originario de América 🍫"},
+  {q:"¿Qué país tiene más países vecinos en el mundo?",o:["Rusia","China","Brasil","Alemania"],a:1,ex:"China tiene 14 países vecinos 🌏"},
+  {q:"¿Cuál es el hueso más largo del cuerpo humano?",o:["Columna","Radio","Fémur","Húmero"],a:2,ex:"El fémur, el hueso del muslo. Puede medir 50 cm 🦴"},
+  {q:"¿Cuántas horas tiene un día?",o:["12","20","24","48"],a:2,ex:"24 horas: 12 de día y 12 de noche ⏰"},
+];
+
+const SEQ_COLORS = [
+  {bg:"#C84040",lit:"#FF7070",n:"Rojo"},
+  {bg:"#389A40",lit:"#60D070",n:"Verde"},
+  {bg:"#3858C8",lit:"#6882FF",n:"Azul"},
+  {bg:"#C89020",lit:"#F0C040",n:"Amarillo"},
+];
+
+// ═════════════════════════════ HELPERS ═════════════════════════════
+
+const sfl = a => { const b=[...a]; for(let i=b.length-1;i>0;i--){const j=0|Math.random()*(i+1);[b[i],b[j]]=[b[j],b[i]];} return b; };
+const pick = (a,n) => sfl(a).slice(0,n);
+const el = id => document.getElementById(id);
+const pg = () => el("pg");
+
+let ST = { screen:"welcome", level:2, aScores:[] };
+
+function nav(scr, data={}) {
+  ST.screen = scr;
+  Object.assign(ST, data);
+  el("menu-btn").style.display = !["welcome","assessment"].includes(scr) ? "block" : "none";
+  SCREENS[scr]?.();
+}
+function goMenu(){ nav("menu"); }
+
+// ═════════════════════════════ SHARED ═════════════════════════════
+
+function progHTML(v,t,lbl=""){
+  return `<div class="prog-wrap">${lbl?`<div class="prog-lbl">${lbl}</div>`:""}<div class="prog-bar"><div class="prog-fill" style="width:${Math.round(v/t*100)}%"></div></div></div>`;
+}
+function back(){ return `<button class="back" onclick="goMenu()">← Menú</button>`; }
+function ghdr(ico,ttl,sub=""){
+  return `<div class="ghdr"><div class="ghdr-ico">${ico}</div><div class="ghdr-ttl">${ttl}</div>${sub?`<div class="ghdr-sub">${sub}</div>`:""}</div>`;
+}
+function doneHTML(ico,ttl,sc,tot){
+  const msg = sc>=tot?"¡Perfecto! 🏆":sc>=tot*.7?"¡Muy bien! 🌟":"¡Siga practicando! 💪";
+  const col = sc>=tot?"#B8920A":sc>=tot*.7?"var(--green)":"var(--primary)";
+  return `<div class="card" style="text-align:center">
+    <div class="done-ico">${ico}</div>
+    <div class="done-ttl" style="color:${col}">${msg}</div>
+    <div class="done-sc">${sc} de ${tot} correctas</div>
+    <button class="btn btn-p" id="replay-btn">Jugar de nuevo 🔄</button>
+    <button class="btn btn-g" onclick="goMenu()">Elegir otro juego</button>
+  </div>`;
+}
+
+// ═════════════════════════════ SCREENS ═════════════════════════════
+
+const SCREENS = {};
+
+// ── WELCOME ──────────────────────────────────────
+SCREENS.welcome = () => {
+  const games = ["🃏 Memoria de Parejas","➕ Cálculo Mental","🔤 Letras Perdidas","🌈 Secuencia de Colores","🧩 Refranes Populares","🎯 ¿Cuál No Pertenece?","🔠 Palabras Revueltas","🌍 Trivia General"];
+  pg().innerHTML = `
+    <div style="text-align:center;padding:4px 0 16px">
+      <div class="hero-rings"><div class="hero-emoji">🧠</div></div>
+      <h1 style="font-size:30px;font-weight:900;color:var(--text);margin:0 0 8px;line-height:1.2">Gimnasio Mental</h1>
+      <p style="font-size:17px;color:var(--text-md);margin:0 0 22px;line-height:1.65">Ejercicios para mantener la mente<br>activa, ágil y feliz cada día ✨</p>
+    </div>
+    <div class="card card-soft">
+      <p style="font-size:15px;font-weight:800;color:var(--text-md);margin:0 0 10px">¿Qué hay aquí?</p>
+      ${games.map((g,i)=>`<div style="font-size:16px;color:var(--text);padding:8px 0;${i<games.length-1?"border-bottom:1px solid var(--border)":""}">${g}</div>`).join("")}
+    </div>
+    <p style="font-size:14px;color:var(--text-lt);text-align:center;margin:2px 0 16px">Sin registros • Sin pagos • Solo para usted 💛</p>
+    <button class="btn btn-p" onclick="nav('assessment')">Comenzar Evaluación 📋</button>
+    <button class="btn btn-g" onclick="nav('menu',{level:2})">Ir directo a los juegos 🎮</button>
+  `;
+};
+
+// ── ASSESSMENT ────────────────────────────────────
+let AS = {};
+SCREENS.assessment = () => {
+  AS = { step:0, scores:[], ws: WORD_SETS[0|Math.random()*WORD_SETS.length] };
+  renderAS();
+};
+function renderAS(){
+  const labels = ["📝 Memoria de Palabras","➕ Cálculo Mental","👁️ Atención Visual"];
+  pg().innerHTML = `
+    <div style="text-align:center;margin-bottom:14px">
+      <div style="font-size:38px">${["📝","➕","👁️"][AS.step]}</div>
+      <h2 style="font-size:24px;font-weight:900;color:var(--text);margin:3px 0">${labels[AS.step]}</h2>
+      <p style="font-size:14px;color:var(--text-lt);margin:0">Parte ${AS.step+1} de 3</p>
+    </div>
+    ${progHTML(AS.step,3)}
+    <div id="asw"></div>`;
+  [asWords,asMath,asAttention][AS.step]();
+}
+
+function asWords(){
+  let t=14;
+  const ws=AS.ws;
+  const dist=sfl(["MAR","NUBE","TAZA","LLAVE","CIELO","CAFÉ","NOCHE","CAMPO","RÍO","PÁJARO"].filter(d=>!ws.includes(d))).slice(0,3);
+  const opts=sfl([...ws,...dist]);
+  let selected=[];
+
+  function drawShow(){
+    el("asw").innerHTML=`<div class="card" style="text-align:center;background:var(--cream);border:2px solid var(--border)">
+      <p style="font-size:14px;color:var(--text-lt);font-weight:700;margin:0 0 6px">Memorice estas palabras</p>
+      <div style="font-size:46px;font-weight:900;color:var(--primary);margin-bottom:10px" id="as-tmr">${t}s</div>
+      ${ws.map(w=>`<div style="font-size:23px;font-weight:700;color:var(--text);padding:7px 0;border-bottom:1px solid var(--border)">${w}</div>`).join("")}
+      <p style="font-size:13px;color:var(--text-lt);margin:10px 0 0">Desaparecerán al llegar a 0</p>
+    </div>`;
+    const iv=setInterval(()=>{
+      t--;
+      const te=el("as-tmr");
+      if(te) te.textContent=t+"s";
+      if(t<=0){clearInterval(iv);drawRecall();}
+    },1000);
+  }
+
+  function drawRecall(){
+    el("asw").innerHTML=`<div class="card">
+      <p style="font-size:17px;font-weight:700;color:var(--text);margin:0 0 5px">¿Cuáles palabras recuerda?</p>
+      <p style="font-size:14px;color:var(--text-md);margin:0 0 13px">Toque todas las que memorizó:</p>
+      <div class="cgrid">${opts.map((w,i)=>`<button id="rw${i}" class="cbtn" onclick="togW(${i},'${w}')">${w}</button>`).join("")}</div>
+      <button class="btn btn-p" style="margin-top:10px" onclick="subW()">Listo ✓</button>
+    </div>`;
+    window.togW=(i,w)=>{
+      const b=el(`rw${i}`);
+      const idx=selected.indexOf(w);
+      if(idx>=0){selected.splice(idx,1);b.classList.remove("sel");}
+      else{selected.push(w);b.classList.add("sel");}
+    };
+    window.subW=()=>{
+      AS.scores.push(ws.filter(w=>selected.includes(w)).length);
+      AS.step=1; renderAS();
+    };
+  }
+  drawShow();
+}
+
+function asMath(){
+  const probs=sfl(MATH[2]).slice(0,3);
+  let idx=0,cor=0;
+  function draw(){
+    if(idx>=probs.length){AS.scores.push(cor);AS.step=2;renderAS();return;}
+    el("asw").innerHTML=`
+      ${progHTML(idx,probs.length,`Pregunta ${idx+1} de ${probs.length}`)}
+      <div class="card" style="text-align:center">
+        <div style="font-size:40px;font-weight:900;color:var(--primary);margin:14px 0">${probs[idx].q} = ?</div>
+        <input type="number" class="ginput" id="am-in" placeholder="Su respuesta..." onkeydown="if(event.key==='Enter')chkAM()">
+        <div id="am-fb"></div>
+        <div style="margin-top:12px"><button class="btn btn-p" onclick="chkAM()">Confirmar ✓</button></div>
+      </div>`;
+    el("am-in").focus();
+    window.chkAM=()=>{
+      const v=parseInt(el("am-in").value);if(isNaN(v))return;
+      const ok=v===probs[idx].a;if(ok)cor++;
+      el("am-in").className="ginput "+(ok?"ok":"err");
+      el("am-in").disabled=true;
+      el("am-fb").innerHTML=`<div class="fb ${ok?"fb-ok":"fb-err"}">${ok?"¡Correcto! ✓":"Respuesta: "+probs[idx].a}</div>`;
+      setTimeout(()=>{idx++;draw();},1200);
+    };
+  }
+  draw();
+}
+
+function asAttention(){
+  const tgt="🌸";
+  const oth=["🍎","🌞","🐱","🎵","🌻","🦋","🎈","🐦","🍓"];
+  const cnt=5+Math.floor(Math.random()*4);
+  const cells=sfl([...Array(cnt).fill(tgt),...Array(20-cnt).fill(null).map((_,i)=>oth[i%oth.length])]);
+  el("asw").innerHTML=`<div class="card">
+    <p style="font-size:18px;font-weight:700;color:var(--text);text-align:center;margin:0 0 12px">¿Cuántas ${tgt} hay?</p>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:14px">
+      ${cells.map(c=>`<div style="font-size:27px;text-align:center;padding:5px 0">${c}</div>`).join("")}
+    </div>
+    <input type="number" class="ginput" id="aa-in" placeholder="Cantidad..." onkeydown="if(event.key==='Enter')chkAA()">
+    <div id="aa-fb"></div>
+    <div style="margin-top:12px"><button class="btn btn-p" onclick="chkAA()">Confirmar ✓</button></div>
+  </div>`;
+  el("aa-in").focus();
+  window.chkAA=()=>{
+    const v=parseInt(el("aa-in").value);if(isNaN(v))return;
+    const ok=v===cnt;
+    el("aa-in").className="ginput "+(ok?"ok":"err");
+    el("aa-in").disabled=true;
+    el("aa-fb").innerHTML=`<div class="fb ${ok?"fb-ok":"fb-err"}">${ok?"¡Perfecto! ✓":"Eran "+cnt+" florecitas 🌸"}</div>`;
+    setTimeout(()=>{
+      AS.scores.push(ok?3:0);
+      const tot=AS.scores.reduce((a,b)=>a+b,0);
+      const lv=tot>=8?3:tot>=4?2:1;
+      nav("results",{level:lv,aScores:AS.scores,aTotal:tot});
+    },1400);
+  };
+}
+
+// ── RESULTS ──────────────────────────────────────
+SCREENS.results = () => {
+  const {level,aScores} = ST;
+  const INFO = {
+    1:{e:"🌱",t:"¡Bienvenida!",s:"Empecemos suavecito",c:"var(--green)",m:"Los ejercicios estarán adaptados para usted. ¡Cada día mejorará más!"},
+    2:{e:"🌟",t:"¡Mente Activa!",s:"Muy buen resultado",c:"var(--primary)",m:"Tiene una mente en muy buena forma. ¡Los juegos la mantendrán así!"},
+    3:{e:"🏆",t:"¡Mente Brillante!",s:"Excelente resultado",c:"var(--gold)",m:"¡Fantástico! Su mente está en gran forma. ¡A disfrutar los desafíos!"},
+  }[level];
+  const rows=[{l:"📝 Memoria",v:aScores[0]??0,m:5},{l:"➕ Cálculo",v:aScores[1]??0,m:3},{l:"👁️ Atención",v:(aScores[2]??0)>0?3:0,m:3}];
+  pg().innerHTML = `
+    <div style="text-align:center;padding:6px 0 18px">
+      <div style="font-size:72px;margin-bottom:6px">${INFO.e}</div>
+      <h2 style="font-size:28px;font-weight:900;color:${INFO.c};margin:0 0 4px">${INFO.t}</h2>
+      <p style="font-size:17px;color:var(--text-md);margin:0 0 22px">${INFO.s}</p>
+    </div>
+    <div class="card">
+      <p style="font-size:15px;color:var(--text-lt);font-weight:700;text-align:center;margin-bottom:14px">Sus resultados</p>
+      ${rows.map(({l,v,m})=>`
+        <div style="margin-bottom:11px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+            <span style="font-size:16px;font-weight:700">${l}</span>
+            <span style="font-size:16px;font-weight:800;color:var(--primary)">${v}/${m}</span>
+          </div>
+          <div class="prog-bar"><div class="prog-fill" style="width:${Math.round(v/m*100)}%"></div></div>
+        </div>`).join("")}
+    </div>
+    <div class="card card-soft">
+      <p style="font-size:16px;color:var(--text-md);margin:0;line-height:1.7">${INFO.m}</p>
+    </div>
+    <button class="btn btn-p" onclick="nav('menu')">¡Ir al Gimnasio! 🎮</button>
+  `;
+};
+
+// ── MENU ─────────────────────────────────────────
+const GAMELIST = [
+  {id:"pairs",  e:"🃏", n:"Memoria de Parejas",   d:"Encuentre las tarjetas iguales",        c:"#5068D0"},
+  {id:"math",   e:"➕", n:"Cálculo Mental",        d:"Sumas, restas y multiplicaciones",       c:"#C8623A"},
+  {id:"words",  e:"🔤", n:"Letras Perdidas",       d:"Complete la palabra con pistas",         c:"#5C9A62"},
+  {id:"seq",    e:"🌈", n:"Secuencia de Colores",  d:"Repita el orden de los colores",         c:"#B8920A"},
+  {id:"refran", e:"🧩", n:"Refranes Populares",    d:"Complete el dicho popular",              c:"#8B5EA8"},
+  {id:"odd",    e:"🎯", n:"¿Cuál No Pertenece?",   d:"Encuentre el intruso del grupo",         c:"#C04475"},
+  {id:"scram",  e:"🔠", n:"Palabras Revueltas",    d:"Ordene las letras mezcladas",            c:"#2E8C88"},
+  {id:"trivia", e:"🌍", n:"Trivia General",        d:"Preguntas de cultura general",           c:"#7A6A20"},
+];
+const LVL_LBL = {1:"🌱 Nivel Suave",2:"⭐ Nivel Activo",3:"🏆 Nivel Brillante"};
+
+SCREENS.menu = () => {
+  pg().innerHTML = `
+    <div style="text-align:center;margin-bottom:18px">
+      <div style="font-size:44px;margin-bottom:4px">🧠</div>
+      <h2 style="font-size:26px;font-weight:900;color:var(--text);margin:0 0 8px">¡Elija su ejercicio!</h2>
+      <span class="badge">${LVL_LBL[ST.level]}</span>
+    </div>
+    ${GAMELIST.map(g=>`
+      <button class="gcrd" onclick="nav('${g.id}')" style="border-left:5px solid ${g.c}">
+        <span class="gcrd-ico">${g.e}</span>
+        <div><div class="gcrd-ttl">${g.n}</div><div class="gcrd-dsc">${g.d}</div></div>
+        <span class="gcrd-arr">›</span>
+      </button>`).join("")}
+    <button class="btn btn-g" style="margin-top:6px;font-size:16px" onclick="nav('assessment')">🔄 Repetir Evaluación</button>
+  `;
+};
+
+// ════════════════════════ GAME: PAIRS ════════════════════════════
+
+let PG = {};
+SCREENS.pairs = () => {
+  const n = {1:6,2:8,3:10}[ST.level];
+  const emjs = pick(EMOJIS, n/2);
+  PG = { cards:sfl([...emjs,...emjs].map((e,i)=>({id:i,e,flip:false,done:false}))), open:[], lock:false, moves:0, finished:false };
+  drawPairs();
+};
+function drawPairs(){
+  const {cards,moves,finished} = PG;
+  const matched = cards.filter(c=>c.done).length/2;
+  const total = cards.length/2;
+  if(finished){
+    pg().innerHTML = back()+ghdr("🃏","Memoria de Parejas")+doneHTML("🎉","¡Lo logró!",total,total);
+    el("replay-btn").onclick=()=>nav("pairs");
+    return;
+  }
+  const cols = cards.length<=6?3:4;
+  pg().innerHTML = `
+    ${back()}${ghdr("🃏","Memoria de Parejas")}
+    <div class="badge-row">
+      <span class="badge badge-g">✓ ${matched} parejas</span>
+      <span class="badge badge-d">🎯 ${moves} intentos</span>
+    </div>
+    ${progHTML(matched,total)}
+    <div class="pgrid" style="grid-template-columns:repeat(${cols},1fr)">
+      ${cards.map(c=>`
+        <div class="pcard ${c.done?"done":c.flip?"flip":""}" onclick="flipC(${c.id})">
+          ${c.flip||c.done?`<span class="e">${c.e}</span>`:`<span class="q">?</span>`}
+        </div>`).join("")}
+    </div>`;
+}
+window.flipC = id => {
+  const P=PG;
+  if(P.lock)return;
+  const c=P.cards.find(x=>x.id===id);
+  if(!c||c.flip||c.done)return;
+  c.flip=true;P.open.push(id);
+  if(P.open.length===2){
+    P.moves++;P.lock=true;
+    const [a,b]=P.open.map(oid=>P.cards.find(x=>x.id===oid));
+    if(a.e===b.e){
+      P.cards.forEach(x=>{if(P.open.includes(x.id))x.done=true;});
+      P.open=[];
+      setTimeout(()=>{P.lock=false;if(P.cards.every(x=>x.done))P.finished=true;drawPairs();},400);
+    } else {
+      setTimeout(()=>{P.cards.forEach(x=>{if(P.open.includes(x.id))x.flip=false;});P.open=[];P.lock=false;drawPairs();},1000);
+    }
+  }
+  drawPairs();
+};
+
+// ════════════════════════ GAME: MATH ═════════════════════════════
+
+let MG = {};
+SCREENS.math = () => {
+  MG = {probs:sfl(MATH[ST.level]),idx:0,score:0,streak:0,done:false};
+  drawMath();
+};
+function drawMath(){
+  const {probs,idx,score,streak,done}=MG;
+  if(done){pg().innerHTML=back()+doneHTML("🧮","Cálculo Mental",score,probs.length);el("replay-btn").onclick=()=>nav("math");return;}
+  pg().innerHTML=`
+    ${back()}${ghdr("➕","Cálculo Mental",streak>=2?`🔥 ¡Racha de ${streak}!`:"")}
+    ${progHTML(idx,probs.length,`Pregunta ${idx+1} de ${probs.length}`)}
+    <div class="card" style="text-align:center">
+      <div style="font-size:42px;font-weight:900;color:var(--primary);margin:14px 0 18px">${probs[idx].q} = ?</div>
+      <input type="number" class="ginput" id="mg-in" placeholder="Su respuesta..." onkeydown="if(event.key==='Enter')chkMG()">
+      <div id="mg-fb"></div>
+      <div style="margin-top:13px"><button class="btn btn-p" onclick="chkMG()">Confirmar ✓</button></div>
+    </div>
+    <div class="sc-foot">Correctas: ${score} / ${probs.length}</div>`;
+  el("mg-in").focus();
+}
+window.chkMG=()=>{
+  const v=parseInt(el("mg-in").value);if(isNaN(v))return;
+  const ok=v===MG.probs[MG.idx].a;
+  if(ok){MG.score++;MG.streak++;}else MG.streak=0;
+  el("mg-in").className="ginput "+(ok?"ok":"err");el("mg-in").disabled=true;
+  el("mg-fb").innerHTML=`<div class="fb ${ok?"fb-ok":"fb-err"}">${ok?"¡Correcto! ✓":"La respuesta era "+MG.probs[MG.idx].a}</div>`;
+  setTimeout(()=>{MG.idx++;if(MG.idx>=MG.probs.length)MG.done=true;drawMath();},1200);
+};
+
+// ════════════════════════ GAME: WORDS ════════════════════════════
+
+let WG = {};
+SCREENS.words = () => {
+  const n={1:6,2:9,3:12}[ST.level];
+  WG={puzzles:sfl(WORD_FILL).slice(0,n),idx:0,score:0,done:false,hint:false};
+  drawWords();
+};
+function drawWords(){
+  const {puzzles,idx,score,done,hint}=WG;
+  if(done){pg().innerHTML=back()+doneHTML("🔤","Letras Perdidas",score,puzzles.length);el("replay-btn").onclick=()=>nav("words");return;}
+  const p=puzzles[idx];
+  pg().innerHTML=`
+    ${back()}${ghdr("🔤","Letras Perdidas")}
+    ${progHTML(idx,puzzles.length,`Palabra ${idx+1} de ${puzzles.length}`)}
+    <div class="card" style="text-align:center">
+      <p style="font-size:14px;color:var(--text-lt);font-weight:700;margin:0 0 6px">Complete la palabra</p>
+      <div style="font-size:46px;font-weight:900;color:var(--primary);letter-spacing:8px;margin:13px 0;font-family:monospace">${p.q}</div>
+      ${hint?`<div style="background:var(--gld-lt);border:2px solid var(--gold);border-radius:12px;padding:9px 13px;font-size:16px;color:var(--text-md);margin-bottom:12px">${p.h}</div>`
+        :`<button style="background:transparent;border:2px dashed var(--text-lt);border-radius:10px;padding:7px 16px;font-size:14px;color:var(--text-md);cursor:pointer;font-family:inherit;margin-bottom:12px" onclick="WG.hint=true;drawWords()">💡 Ver pista</button>`}
+      <input type="text" class="ginput" id="wg-in" placeholder="Escriba aquí..." style="letter-spacing:4px;text-transform:uppercase" onkeydown="if(event.key==='Enter')chkWG()">
+      <div id="wg-fb"></div>
+      <div style="margin-top:12px"><button class="btn btn-p" onclick="chkWG()">Confirmar ✓</button></div>
+    </div>
+    <div class="sc-foot">Aciertos: ${score} / ${puzzles.length}</div>`;
+  const inp=el("wg-in");inp.focus();inp.oninput=()=>inp.value=inp.value.toUpperCase();
+}
+window.chkWG=()=>{
+  const v=el("wg-in").value.trim().toUpperCase();if(!v)return;
+  const ok=v===WG.puzzles[WG.idx].a;if(ok)WG.score++;
+  el("wg-in").className="ginput "+(ok?"ok":"err");el("wg-in").disabled=true;
+  el("wg-fb").innerHTML=`<div class="fb ${ok?"fb-ok":"fb-err"}">${ok?"¡Correcto! ✓":"Era: "+WG.puzzles[WG.idx].a}</div>`;
+  setTimeout(()=>{WG.idx++;WG.hint=false;if(WG.idx>=WG.puzzles.length)WG.done=true;drawWords();},1400);
+};
+
+// ════════════════════════ GAME: SEQUENCE ══════════════════════════
+
+let SQ={};let sqTmr=null;
+SCREENS.seq = () => {
+  SQ={seq:[],user:[],phase:"idle",round:0,rec:0,lit:null};
+  drawSeq();
+  setTimeout(startSQ,500);
+};
+function startSQ(prev=[]){
+  clearTimeout(sqTmr);
+  const next=[...prev,0|Math.random()*4];
+  SQ.seq=next;SQ.user=[];SQ.phase="showing";
+  drawSeq();
+  let i=0;
+  function go(){
+    if(i>0){SQ.lit=null;drawSeq();}
+    if(i>=next.length){SQ.phase="input";SQ.lit=null;drawSeq();return;}
+    sqTmr=setTimeout(()=>{SQ.lit=next[i];drawSeq();i++;sqTmr=setTimeout(go,620);},420);
+  }
+  sqTmr=setTimeout(go,700);
+}
+function drawSeq(){
+  const {phase,round,rec,lit,seq,user}=SQ;
+  const msg={idle:"Preparando...",showing:"🔍 Observe la secuencia...",input:`👆 Repita (${user.length}/${seq.length})`,right:"✨ ¡Excelente!",wrong:""}[phase];
+  pg().innerHTML=`
+    ${back()}${ghdr("🌈","Secuencia Mágica")}
+    <div class="badge-row">
+      <span class="badge badge-g">🏆 Récord: ${rec}</span>
+      <span class="badge">Ronda: ${round+1}</span>
+    </div>
+    <div class="card" style="text-align:center;min-height:76px">
+      ${phase==="wrong"?`
+        <div style="font-size:22px;font-weight:800;color:var(--err);margin-bottom:7px">❌ ¡Incorrecto!</div>
+        <div style="font-size:15px;color:var(--text-md);margin-bottom:13px">Llegó a la ronda ${round+1} &nbsp;•&nbsp; Récord: ${rec}</div>
+        <button class="btn btn-p" style="margin:0" onclick="restartSQ()">Empezar de nuevo 🔄</button>`
+      :`<div style="font-size:19px;font-weight:700;color:${phase==="right"?"var(--ok)":phase==="input"?"var(--green)":"var(--primary)"};padding:14px 0">${msg}</div>`}
+    </div>
+    <div class="sqgrid">
+      ${SEQ_COLORS.map((c,i)=>`<button class="sqbtn ${lit===i?"lit":""}" style="background:${lit===i?c.lit:c.bg}" onclick="pressSQ(${i})" ${phase!=="input"?"disabled":""}>${c.n}</button>`).join("")}
+    </div>`;
+}
+window.pressSQ=i=>{
+  if(SQ.phase!=="input")return;
+  SQ.lit=i;drawSeq();
+  setTimeout(()=>{SQ.lit=null;drawSeq();},200);
+  const nu=[...SQ.user,i];
+  if(nu[nu.length-1]!==SQ.seq[nu.length-1]){SQ.phase="wrong";if(SQ.round>SQ.rec)SQ.rec=SQ.round;drawSeq();return;}
+  SQ.user=nu;
+  if(nu.length===SQ.seq.length){
+    SQ.round++;if(SQ.round>SQ.rec)SQ.rec=SQ.round;
+    SQ.phase="right";drawSeq();
+    setTimeout(()=>startSQ(SQ.seq),900);
+  }
+};
+window.restartSQ=()=>{SQ.seq=[];SQ.user=[];SQ.phase="idle";SQ.round=0;drawSeq();setTimeout(startSQ,500);};
+
+// ════════════════════════ GAME: REFRANES ══════════════════════════
+
+let RG={};
+SCREENS.refran = () => {
+  const n={1:6,2:9,3:12}[ST.level];
+  RG={items:sfl(REFRANES).slice(0,n),idx:0,score:0,done:false,ans:false,chosen:-1};
+  drawRefran();
+};
+function drawRefran(){
+  const {items,idx,score,done,ans,chosen}=RG;
+  if(done){pg().innerHTML=back()+doneHTML("🧩","Refranes Populares",score,items.length);el("replay-btn").onclick=()=>nav("refran");return;}
+  const r=items[idx];
+  pg().innerHTML=`
+    ${back()}${ghdr("🧩","Refranes Populares","Complete el dicho popular")}
+    ${progHTML(idx,items.length,`Refrán ${idx+1} de ${items.length}`)}
+    <div class="card" style="text-align:center">
+      <div class="rftext">"${r.s}"</div>
+      <p style="font-size:14px;color:var(--text-lt);margin:0 0 13px;font-weight:600">¿Cómo continúa?</p>
+      <div class="cgrid">
+        ${r.o.map((opt,i)=>`<button class="cbtn ${ans?(i===r.a?"c-ok":chosen===i?"c-err":""):""}" onclick="chkRF(${i})" ${ans?"disabled":""}>${opt}</button>`).join("")}
+      </div>
+      ${ans?`<div class="fb ${chosen===r.a?"fb-ok":"fb-err"}">${chosen===r.a?"¡Correcto! ✓":"La verde es la correcta"}</div><button class="btn btn-p" style="margin-top:6px" onclick="nextRF()">Siguiente →</button>`:""}
+    </div>
+    <div class="sc-foot">Correctas: ${score} / ${items.length}</div>`;
+}
+window.chkRF=i=>{if(RG.ans)return;RG.chosen=i;RG.ans=true;if(i===RG.items[RG.idx].a)RG.score++;drawRefran();};
+window.nextRF=()=>{RG.idx++;RG.ans=false;RG.chosen=-1;if(RG.idx>=RG.items.length)RG.done=true;drawRefran();};
+
+// ════════════════════════ GAME: ODD ONE OUT ════════════════════════
+
+let OG={};
+SCREENS.odd = () => {
+  const n={1:6,2:9,3:12}[ST.level];
+  OG={items:sfl(ODD).slice(0,n),idx:0,score:0,done:false,ans:false,chosen:-1};
+  drawOdd();
+};
+function drawOdd(){
+  const {items,idx,score,done,ans,chosen}=OG;
+  if(done){pg().innerHTML=back()+doneHTML("🎯","¿Cuál No Pertenece?",score,items.length);el("replay-btn").onclick=()=>nav("odd");return;}
+  const q=items[idx];
+  pg().innerHTML=`
+    ${back()}${ghdr("🎯","¿Cuál No Pertenece?","Encuentre el intruso del grupo")}
+    ${progHTML(idx,items.length,`Pregunta ${idx+1} de ${items.length}`)}
+    <div class="card">
+      <p style="font-size:18px;font-weight:700;color:var(--text);text-align:center;margin:0 0 14px;line-height:1.4">¿Cuál de estas palabras<br>NO pertenece al grupo?</p>
+      <div class="cgrid">
+        ${q.it.map((item,i)=>`<button class="cbtn ${ans?(i===q.odd?"c-ok":chosen===i?"c-err":""):""}" onclick="chkOD(${i})" ${ans?"disabled":""} style="font-size:${item.length>8?"14":"17"}px">${item}</button>`).join("")}
+      </div>
+      ${ans?`<div style="background:var(--gld-lt);border:2px solid var(--gold);border-radius:12px;padding:11px 13px;margin-top:12px">
+        <div class="fb ${chosen===q.odd?"fb-ok":"fb-err"}" style="margin:0 0 6px">${chosen===q.odd?"¡Correcto! ✓":"No era esa..."}</div>
+        <p style="font-size:15px;color:var(--text-md);margin:0">💡 ${q.r}</p>
+      </div><button class="btn btn-p" style="margin-top:12px" onclick="nextOD()">Siguiente →</button>`:""}
+    </div>
+    <div class="sc-foot">Correctas: ${score} / ${items.length}</div>`;
+}
+window.chkOD=i=>{if(OG.ans)return;OG.chosen=i;OG.ans=true;if(i===OG.items[OG.idx].odd)OG.score++;drawOdd();};
+window.nextOD=()=>{OG.idx++;OG.ans=false;OG.chosen=-1;if(OG.idx>=OG.items.length)OG.done=true;drawOdd();};
+
+// ════════════════════════ GAME: SCRAMBLE ══════════════════════════
+
+let SCG={};
+SCREENS.scram = () => {
+  const n={1:6,2:9,3:12}[ST.level];
+  SCG={puzzles:sfl(SCRAMBLE).slice(0,n),idx:0,score:0,done:false};
+  drawScram();
+};
+function drawScram(){
+  const {puzzles,idx,score,done}=SCG;
+  if(done){pg().innerHTML=back()+doneHTML("🔠","Palabras Revueltas",score,puzzles.length);el("replay-btn").onclick=()=>nav("scram");return;}
+  const p=puzzles[idx];
+  pg().innerHTML=`
+    ${back()}${ghdr("🔠","Palabras Revueltas","Ordene las letras y forme la palabra")}
+    ${progHTML(idx,puzzles.length,`Palabra ${idx+1} de ${puzzles.length}`)}
+    <div class="card" style="text-align:center">
+      <div style="font-size:50px;margin-bottom:7px">${p.e}</div>
+      <p style="font-size:14px;color:var(--text-lt);font-weight:700;margin:0 0 4px">Letras mezcladas:</p>
+      <div class="scrword">${p.sc}</div>
+      <p style="font-size:15px;color:var(--text-md);margin:0 0 13px">¿Cuál es la palabra correcta?</p>
+      <input type="text" class="ginput" id="sc-in" placeholder="Escriba aquí..." style="letter-spacing:4px;text-transform:uppercase" onkeydown="if(event.key==='Enter')chkSC()">
+      <div id="sc-fb"></div>
+      <div style="margin-top:12px"><button class="btn btn-p" onclick="chkSC()">Confirmar ✓</button></div>
+    </div>
+    <div class="sc-foot">Correctas: ${score} / ${puzzles.length}</div>`;
+  const inp=el("sc-in");inp.focus();inp.oninput=()=>inp.value=inp.value.toUpperCase();
+}
+window.chkSC=()=>{
+  const v=el("sc-in").value.trim().toUpperCase();if(!v)return;
+  const ok=v===SCG.puzzles[SCG.idx].w;if(ok)SCG.score++;
+  el("sc-in").className="ginput "+(ok?"ok":"err");el("sc-in").disabled=true;
+  el("sc-fb").innerHTML=`<div class="fb ${ok?"fb-ok":"fb-err"}">${ok?"¡Correcto! ✓":"Era: "+SCG.puzzles[SCG.idx].w}</div>`;
+  setTimeout(()=>{SCG.idx++;if(SCG.idx>=SCG.puzzles.length)SCG.done=true;drawScram();},1400);
+};
+
+// ════════════════════════ GAME: TRIVIA ════════════════════════════
+
+let TG={};
+SCREENS.trivia = () => {
+  const n={1:6,2:9,3:12}[ST.level];
+  TG={items:sfl(TRIVIA).slice(0,n),idx:0,score:0,done:false,ans:false,chosen:-1};
+  drawTrivia();
+};
+function drawTrivia(){
+  const {items,idx,score,done,ans,chosen}=TG;
+  if(done){pg().innerHTML=back()+doneHTML("🌍","Trivia General",score,items.length);el("replay-btn").onclick=()=>nav("trivia");return;}
+  const q=items[idx];
+  pg().innerHTML=`
+    ${back()}${ghdr("🌍","Trivia General","Preguntas de cultura general")}
+    ${progHTML(idx,items.length,`Pregunta ${idx+1} de ${items.length}`)}
+    <div class="card">
+      <p style="font-size:19px;font-weight:700;color:var(--text);text-align:center;line-height:1.55;margin:0 0 18px">${q.q}</p>
+      <div class="cgrid">
+        ${q.o.map((opt,i)=>`<button class="cbtn ${ans?(i===q.a?"c-ok":chosen===i?"c-err":""):""}" onclick="chkTV(${i})" ${ans?"disabled":""} style="font-size:${opt.length>10?"14":"17"}px">${opt}</button>`).join("")}
+      </div>
+      ${ans?`<div class="exp-box"><div class="fb ${chosen===q.a?"fb-ok":"fb-err"}" style="margin:0 0 6px">${chosen===q.a?"¡Correcto! ✓":"¡Casi! Siga intentando"}</div><p>${q.ex}</p></div>
+      <button class="btn btn-p" style="margin-top:12px" onclick="nextTV()">Siguiente →</button>`:""}
+    </div>
+    <div class="sc-foot">Correctas: ${score} / ${items.length}</div>`;
+}
+window.chkTV=i=>{if(TG.ans)return;TG.chosen=i;TG.ans=true;if(i===TG.items[TG.idx].a)TG.score++;drawTrivia();};
+window.nextTV=()=>{TG.idx++;TG.ans=false;TG.chosen=-1;if(TG.idx>=TG.items.length)TG.done=true;drawTrivia();};
+
+// ═════════════════════════ INIT ════════════════════════════════════
+window.nav=nav;
+nav("welcome");
+</script>
+</body>
+</html>
